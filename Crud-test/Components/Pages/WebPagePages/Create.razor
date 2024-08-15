@@ -1,0 +1,53 @@
+﻿@page "/webpages/create"
+
+@using Microsoft.EntityFrameworkCore
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h4>WebPage</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="WebPage" OnValidSubmit="AddWebPage" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
+                <label for="title" class="form-label">Title:</label> 
+                <InputText id="title" @bind-Value="WebPage.Title" class="form-control" /> 
+                <ValidationMessage For="() => WebPage.Title" class="text-danger" /> 
+            </div>                               
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/webpages">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public WebPage WebPage { get; set; } = new()
+    {
+        Title = "WebPage",
+        CreatedDate = DateTime.Now,
+        LastModifiedDate = DateTime.Now
+    };
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddWebPage()
+    {
+        using var context = DbFactory.CreateDbContext();
+        WebPage.CreatedDate = DateTime.Now;
+        WebPage.LastModifiedDate = DateTime.Now;
+        context.Pages.Add(WebPage);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/webpages");
+    }
+}

@@ -1,0 +1,73 @@
+﻿@page "/webpages/delete"
+
+@using Microsoft.EntityFrameworkCore
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>WebPage</h4>
+    <hr />
+    @if (webpage is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@webpage.Title</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">CreatedDate</dt>
+            <dd class="col-sm-10">@webpage.CreatedDate</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">LastModifiedDate</dt>
+            <dd class="col-sm-10">@webpage.LastModifiedDate</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">SiteId</dt>
+            <dd class="col-sm-10">@webpage.SiteId</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">UserId</dt>
+            <dd class="col-sm-10">@webpage.UserId</dd>
+        </dl>
+        <EditForm method="post" Model="webpage" OnValidSubmit="DeleteWebPage" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(webpage is null)">Delete</button> |
+            <a href="/webpages">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    WebPage? webpage;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        webpage = await context.Pages.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (webpage is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    public async Task DeleteWebPage()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Pages.Remove(webpage!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/webpages");
+    }
+}

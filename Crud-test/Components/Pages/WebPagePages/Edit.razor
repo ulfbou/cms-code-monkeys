@@ -1,0 +1,90 @@
+﻿@page "/WebPages/edit"
+
+@using Microsoft.EntityFrameworkCore
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>WebPage</h4>
+<hr />
+@if (WebPage is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="WebPage" OnValidSubmit="UpdateWebPage" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="WebPage.Id" value="@WebPage.Id" />
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title:</label>
+                    <InputText id="title" @bind-Value="WebPage.Title" class="form-control" />
+                    <ValidationMessage For="() => WebPage.Title" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/webpages">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public WebPage? WebPage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        WebPage ??= await context.Pages.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (WebPage is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateWebPage()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(WebPage!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!WebPageExists(WebPage!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/webpages");
+    }
+
+    bool WebPageExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Pages.Any(e => e.Id == id);
+    }
+}

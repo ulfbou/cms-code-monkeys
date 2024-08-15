@@ -9,6 +9,6 @@
         required public DateTime CreatedDate { get; set; }
         required public DateTime LastModifiedDate { get; set; }
 
-        public int PageId { get; set; }
+        public int? PageId { get; set; }
     }
 }

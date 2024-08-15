@@ -10,6 +10,6 @@ namespace CodeMonkeys.CMS.Public.Shared.Entities
         required public DateTime CreatedDate { get; set; }
         required public DateTime LastModifiedDate { get; set; }
 
-        public ICollection<Page> Pages { get; set; } = new List<Page>();
+        public ICollection<WebPage> Pages { get; set; } = new List<WebPage>();
     }
 }

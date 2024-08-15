@@ -1,0 +1,55 @@
+﻿@page "/webpages/details"
+
+@using Microsoft.EntityFrameworkCore
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h4>WebPage</h4>
+    <hr />
+    @if (webpage is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@webpage.Title</dd>
+            <dt class="col-sm-2">CreatedDate</dt>
+            <dd class="col-sm-10">@webpage.CreatedDate</dd>
+            <dt class="col-sm-2">LastModifiedDate</dt>
+            <dd class="col-sm-10">@webpage.LastModifiedDate</dd>
+            <dt class="col-sm-2">SiteId</dt>
+            <dd class="col-sm-10">@webpage.SiteId</dd>
+            <dt class="col-sm-2">UserId</dt>
+            <dd class="col-sm-10">@webpage.UserId</dd>
+        </dl>
+        <div>
+            <a href="@($"/webpages/edit?id={webpage.Id}")">Edit</a> |
+            <a href="@($"/webpages")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    WebPage? webpage;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        webpage = await context.Pages.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (webpage is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

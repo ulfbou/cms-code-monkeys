@@ -1,0 +1,41 @@
+﻿@page "/webpages"
+
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@using Crud_test.Data
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@implements IAsyncDisposable
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="webpages/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Pages">
+    <PropertyColumn Property="webpage => webpage.Title" />
+    <PropertyColumn Property="webpage => webpage.CreatedDate" />
+    <PropertyColumn Property="webpage => webpage.LastModifiedDate" />
+    <PropertyColumn Property="webpage => webpage.SiteId" />
+    <PropertyColumn Property="webpage => webpage.UserId" />
+
+    <TemplateColumn Context="webpage">
+        <a href="@($"webpages/edit?id={webpage.Id}")">Edit</a> |
+        <a href="@($"webpages/details?id={webpage.Id}")">Details</a> |
+        <a href="@($"webpages/delete?id={webpage.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    Crud_testContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

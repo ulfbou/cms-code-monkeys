@@ -17,5 +17,8 @@ namespace Crud_test.Data
         }
 
         public DbSet<Site> Site { get; set; } = default!;
+        public DbSet<WebPage> Pages { get; set; } = default!;
+
+        public DbSet<Content> Content { get; set; } = default!;
     }
 }
