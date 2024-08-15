@@ -1,0 +1,72 @@
+﻿@page "/contents/create"
+
+@using Microsoft.EntityFrameworkCore
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h4>Content</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Content" OnValidSubmit="AddContent" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
+                <label for="title" class="form-label">Title:</label> 
+                <InputText id="title" @bind-Value="Content.Title" class="form-control" /> 
+                <ValidationMessage For="() => Content.Title" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="contenttype" class="form-label">ContentType:</label> 
+                <InputText id="contenttype" @bind-Value="Content.ContentType" class="form-control" /> 
+                <ValidationMessage For="() => Content.ContentType" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="body" class="form-label">Body:</label> 
+                <InputText id="body" @bind-Value="Content.Body" class="form-control" /> 
+                <ValidationMessage For="() => Content.Body" class="text-danger" /> 
+            </div>        
+           
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/contents">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public Content Content { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Content = new()
+        {
+        Title = "Content",
+        ContentType="Type" ,
+        Body="Body",
+        CreatedDate = DateTime.Now,
+        LastModifiedDate = DateTime.Now
+        };
+        
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddContent()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Content.Add(Content);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/contents");
+    }
+}
+

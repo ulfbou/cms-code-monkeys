@@ -1,0 +1,57 @@
+﻿@page "/contents/details"
+
+@using Microsoft.EntityFrameworkCore
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h4>Content</h4>
+    <hr />
+    @if (content is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@content.Title</dd>
+            <dt class="col-sm-2">ContentType</dt>
+            <dd class="col-sm-10">@content.ContentType</dd>
+            <dt class="col-sm-2">Body</dt>
+            <dd class="col-sm-10">@content.Body</dd>
+            <dt class="col-sm-2">CreatedDate</dt>
+            <dd class="col-sm-10">@content.CreatedDate</dd>
+            <dt class="col-sm-2">LastModifiedDate</dt>
+            <dd class="col-sm-10">@content.LastModifiedDate</dd>
+            <dt class="col-sm-2">PageId</dt>
+            <dd class="col-sm-10">@content.PageId</dd>
+        </dl>
+        <div>
+            <a href="@($"/contents/edit?id={content.Id}")">Edit</a> |
+            <a href="@($"/contents")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    Content? content;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        content = await context.Content.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (content is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

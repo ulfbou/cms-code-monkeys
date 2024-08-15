@@ -1,0 +1,115 @@
+﻿@page "/Contents/edit"
+
+@using Microsoft.EntityFrameworkCore
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>Content</h4>
+<hr />
+@if (Content is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Content" OnValidSubmit="UpdateContent" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="Content.Id" value="@Content.Id" />
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title:</label>
+                    <InputText id="title" @bind-Value="Content.Title" class="form-control" />
+                    <ValidationMessage For="() => Content.Title" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="contenttype" class="form-label">ContentType:</label>
+                    <InputText id="contenttype" @bind-Value="Content.ContentType" class="form-control" />
+                    <ValidationMessage For="() => Content.ContentType" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="body" class="form-label">Body:</label>
+                    <InputText id="body" @bind-Value="Content.Body" class="form-control" />
+                    <ValidationMessage For="() => Content.Body" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createddate" class="form-label">CreatedDate:</label>
+                    <InputDate id="createddate" @bind-Value="Content.CreatedDate" class="form-control" />
+                    <ValidationMessage For="() => Content.CreatedDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastmodifieddate" class="form-label">LastModifiedDate:</label>
+                    <InputDate id="lastmodifieddate" @bind-Value="Content.LastModifiedDate" class="form-control" />
+                    <ValidationMessage For="() => Content.LastModifiedDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="pageid" class="form-label">PageId:</label>
+                    <InputNumber id="pageid" @bind-Value="Content.PageId" class="form-control" />
+                    <ValidationMessage For="() => Content.PageId" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/contents">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public Content? Content { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Content ??= await context.Content.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Content is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateContent()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Content!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ContentExists(Content!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/contents");
+    }
+
+    bool ContentExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Content.Any(e => e.Id == id);
+    }
+}
