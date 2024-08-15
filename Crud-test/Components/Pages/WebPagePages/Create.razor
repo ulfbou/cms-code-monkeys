@@ -40,6 +40,17 @@
         LastModifiedDate = DateTime.Now
     };
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        WebPage = new()
+            {
+                Title = "WebPage",
+                CreatedDate = DateTime.Now,
+                LastModifiedDate = DateTime.Now
+            };
+    }
+
     // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
     public async Task AddWebPage()
     {
