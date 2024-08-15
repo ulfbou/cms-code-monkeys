@@ -1,0 +1,100 @@
+﻿@page "/Sites/edit"
+
+@using Microsoft.EntityFrameworkCore
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>Site</h4>
+<hr />
+@if (Site is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Site" OnValidSubmit="UpdateSite" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="Site.SiteID" value="@Site.SiteID" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="Site.Name" class="form-control" />
+                    <ValidationMessage For="() => Site.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createddate" class="form-label">CreatedDate:</label>
+                    <InputDate id="createddate" @bind-Value="Site.CreatedDate" class="form-control" />
+                    <ValidationMessage For="() => Site.CreatedDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastmodifieddate" class="form-label">LastModifiedDate:</label>
+                    <InputDate id="lastmodifieddate" @bind-Value="Site.LastModifiedDate" class="form-control" />
+                    <ValidationMessage For="() => Site.LastModifiedDate" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/sites">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int SiteID { get; set; }
+
+    [SupplyParameterFromForm]
+    public Site? Site { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Site ??= await context.Site.FirstOrDefaultAsync(m => m.SiteID == SiteID);
+
+        if (Site is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateSite()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Site!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!SiteExists(Site!.SiteID))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/sites");
+    }
+
+    bool SiteExists(int siteid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Site.Any(e => e.SiteID == siteid);
+    }
+}

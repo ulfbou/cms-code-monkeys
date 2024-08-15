@@ -1,0 +1,39 @@
+﻿@page "/sites"
+
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@using Crud_test.Data
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@implements IAsyncDisposable
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="sites/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Site">
+    <PropertyColumn Property="site => site.Name" />
+    <PropertyColumn Property="site => site.CreatedDate" />
+    <PropertyColumn Property="site => site.LastModifiedDate" />
+
+    <TemplateColumn Context="site">
+        <a href="@($"sites/edit?siteid={site.SiteID}")">Edit</a> |
+        <a href="@($"sites/details?siteid={site.SiteID}")">Details</a> |
+        <a href="@($"sites/delete?siteid={site.SiteID}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    Crud_testContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

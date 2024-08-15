@@ -1,0 +1,51 @@
+﻿@page "/sites/details"
+
+@using Microsoft.EntityFrameworkCore
+@using CodeMonkeys.CMS.Public.Shared.Entities
+@inject IDbContextFactory<Crud_test.Data.Crud_testContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h4>Site</h4>
+    <hr />
+    @if (site is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@site.Name</dd>
+            <dt class="col-sm-2">CreatedDate</dt>
+            <dd class="col-sm-10">@site.CreatedDate</dd>
+            <dt class="col-sm-2">LastModifiedDate</dt>
+            <dd class="col-sm-10">@site.LastModifiedDate</dd>
+        </dl>
+        <div>
+            <a href="@($"/sites/edit?siteid={site.SiteID}")">Edit</a> |
+            <a href="@($"/sites")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    Site? site;
+
+    [SupplyParameterFromQuery]
+    public int SiteID { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        site = await context.Site.FirstOrDefaultAsync(m => m.SiteID == SiteID);
+
+        if (site is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}
